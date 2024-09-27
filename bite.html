@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options Selector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        button {
+            margin: 5px;
+		padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Select an Option</h1>
+<p id="question"></p>
+<div id="options"></div>
+<div>
+    <label for="questionCount">Enter total number of questions:</label>
+    <input type="number" id="questionCount" min="1" />
+    <button onclick="setTotalQuestions()">Start</button>
+</div>
+
+<div id="results" style="display: none;">
+    <h1>Your Selections</h1>
+    <p id="selectionsText"></p>
+    <button onclick="copyResults()">Copy Results</button>
+    <button onclick="clearResults()">Clear</button>
+</div>
+
+<script>
+    let totalQuestions = 0;
+    let currentQuestion = 0;
+    const options = ['A', 'B', 'C', 'D', 'X'];
+    const clickCount = {};
+
+    function setTotalQuestions() {
+        const input = document.getElementById('questionCount').value;
+        totalQuestions = parseInt(input, 10);
+        if (isNaN(totalQuestions) || totalQuestions < 1) {
+            alert('Please enter a valid number of questions.');
+            return;
+        }
+        currentQuestion = 0; // Reset current question
+        displayQuestion();
+    }
+
+    function displayQuestion() {
+        if (currentQuestion < totalQuestions) {
+            document.getElementById('question').innerText = `Question ${currentQuestion + 1}`;
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.innerText = option;
+                button.onclick = () => selectOption(option);
+                optionsDiv.appendChild(button);
+                clickCount[option] = 0; // Initialize click count for each option
+            });
+        } else {
+            showResults();
+        }
+    }
+
+    function selectOption(option) {
+        clickCount[option]++;
+        
+        // If clicked twice, save the option
+        if (clickCount[option] === 2) {
+            let selections = JSON.parse(localStorage.getItem('selections')) || [];
+            selections[currentQuestion] = option;
+            localStorage.setItem('selections', JSON.stringify(selections));
+            currentQuestion++;
+            displayQuestion();
+        }
+    }
+
+    function showResults() {
+        const selections = JSON.parse(localStorage.getItem('selections')) || [];
+        document.getElementById('selectionsText').innerText = selections.join(',');
+        document.getElementById('results').style.display = 'block';
+    }
+
+    function copyResults() {
+        const textToCopy = document.getElementById('selectionsText').innerText;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            alert('Results copied to clipboard!');
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+        });
+    }
+
+    function clearResults() {
+        localStorage.removeItem('selections');
+        currentQuestion = 0;
+        totalQuestions = 0;
+        document.getElementById('question').innerText = '';
+        document.getElementById('options').innerHTML = '';
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('questionCount').value = '';
+        clickCount = {};
+    }
+</script>
+
+</body>
+</html>
