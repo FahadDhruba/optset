@@ -78,8 +78,29 @@
 
         function displayResults() {
             const resultDiv = document.getElementById('resultDiv');
+
+            const cbtDiv = document.getElementById('cbtDiv');
+            
             resultDiv.innerHTML = ''; // Clear previous results
-            resultDiv.textContent = `Selected Answers: ${answers.join(',')}`;
+            const resultText = `Selected Answers: ${answers.join(',')}`;
+            resultDiv.textContent = resultText;
+
+            // Create Copy Results Button
+            const copyButton = document.createElement('button');
+            copyButton.textContent = 'Copy Results';
+            copyButton.className = 'mt-4 p-2 bg-green-500 text-white rounded hover:bg-green-600';
+            copyButton.onclick = () => copyResults(resultText);
+            cbtDiv.appendChild(copyButton);
+        }
+
+        function copyResults(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    alert('Results copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Could not copy text: ', err);
+                });
         }
     </script>
 </head>
@@ -94,6 +115,8 @@
     <div id="questionsDiv" class="mb-4"></div>
 
     <div id="resultDiv" class="p-4 bg-white border border-gray-300 rounded"></div>
+
+    <div id="cbtDiv" class="m-4"></div>
 
 </body>
 </html>
