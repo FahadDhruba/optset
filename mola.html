@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionnaire</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script>
+        function showQuestions() {
+            const title = document.getElementById('title').value;
+            const quesCount = parseInt(document.getElementById('quesCount').value);
+            const inputDiv = document.getElementById('inputDiv');
+            const questionsDiv = document.getElementById('questionsDiv');
+
+            inputDiv.style.display = 'none';
+            questionsDiv.innerHTML = ''; // Clear previous questions
+
+            for (let i = 0; i < quesCount; i++) {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'mb-4';
+                
+                // Create a question number with buttons
+                const questionNumber = document.createElement('span');
+                questionNumber.textContent = `${i + 1}: `;
+                questionNumber.className = 'font-semibold';
+                questionDiv.appendChild(questionNumber);
+
+                const buttons = ['A', 'B', 'C', 'D', 'X'];
+                buttons.forEach(button => {
+                    const btn = document.createElement('button');
+                    btn.textContent = button;
+                    btn.className = 'mx-2 p-2 border border-gray-300 rounded hover:bg-gray-200';
+                    btn.onclick = () => selectOption(btn, i);
+                    questionDiv.appendChild(btn);
+                });
+
+                questionsDiv.appendChild(questionDiv);
+            }
+
+            const saveButton = document.createElement('button');
+            saveButton.textContent = 'Save Answers';
+            saveButton.className = 'mt-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600';
+            saveButton.onclick = saveAnswers;
+            questionsDiv.appendChild(saveButton);
+        }
+
+        let answers = [];
+
+        function selectOption(button, questionIndex) {
+            const selectedButton = button;
+            const questionDiv = selectedButton.parentElement;
+
+            // Toggle selection
+            if (selectedButton.classList.contains('bg-blue-500')) {
+                selectedButton.classList.remove('bg-blue-500', 'text-white');
+                answers[questionIndex] = (answers[questionIndex] || '').replace(selectedButton.textContent, '');
+            } else {
+                selectedButton.classList.add('bg-blue-500', 'text-white');
+                if (!answers[questionIndex]) answers[questionIndex] = '';
+                answers[questionIndex] += selectedButton.textContent; // Concatenate selected options
+            }
+        }
+
+        function saveAnswers() {
+            const title = document.getElementById('title').value;
+
+            // Validation: Ensure at least one option is selected for each question
+            for (let i = 0; i < answers.length; i++) {
+                if (!answers[i] || answers[i].length === 0) {
+                    alert(`You must select at least one option for question ${i + 1}.`);
+                    return;
+                }
+            }
+
+            localStorage.setItem(`WebData/${title}`, JSON.stringify(answers));
+            displayResults();
+        }
+
+        function displayResults() {
+            const resultDiv = document.getElementById('resultDiv');
+            resultDiv.innerHTML = ''; // Clear previous results
+            resultDiv.textContent = `Selected Answers: ${answers.join(',')}`;
+        }
+    </script>
+</head>
+<body class="bg-gray-100 p-8">
+
+    <div id="inputDiv" class="mb-4">
+        <input type="text" id="title" placeholder="Enter Title" class="p-2 border border-gray-300 rounded mb-2 w-full">
+        <input type="number" id="quesCount" placeholder="Number of Questions" class="p-2 border border-gray-300 rounded mb-2 w-full">
+        <button onclick="showQuestions()" class="p-2 bg-green-500 text-white rounded hover:bg-green-600">Start Quiz</button>
+    </div>
+
+    <div id="questionsDiv" class="mb-4"></div>
+
+    <div id="resultDiv" class="p-4 bg-white border border-gray-300 rounded"></div>
+
+</body>
+</html>
