@@ -65,7 +65,7 @@
             const title = document.getElementById('title').value;
 
             // Validation: Ensure at least one option is selected for each question
-            for (let i = 0; i < answers.length; i++) {
+            for (let i = 0; i <= answers.length; i++) {
                 if (!answers[i] || answers[i].length === 0) {
                     alert(`You must select at least one option for question ${i + 1}.`);
                     return;
